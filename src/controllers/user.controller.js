@@ -1,20 +1,11 @@
 import {asyncHandler} from '../utils/asyncHandler.js';
-import {apiError} from '../utils/apiError.js';
+import {ApiError as apiError} from '../utils/apiError.js';
 import { User } from '../models/user.model.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
-import { use } from 'react';
 import { apiResponse } from '../utils/apiResponse.js';
 
 const registerUser = asyncHandler(async (req, res) => {
-  //get user data from req.body
-  // validate user data
-  //check if user already exists : username + email 
-  // check for image upload check for avatar
-  // upload them to cloudinary
-  //create user in db
-  // remove passwordd and refresh tokeen  field from response
-  //check for user creation success
-  //return res 
+
   const {fullName , email , username , password} = req.body
   
   if ([fullName, email, username, password].some((field) => field?.trim() === "")) {
@@ -33,7 +24,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new apiError(400 , "Avatar image is required")
     };
     const avatar  = await uploadToCloudinary(avatarLocalPath)
-    const image = await uploadToCloudinary(coverImageLocalPath)
+    const coverImage = await uploadToCloudinary(coverImageLocalPath)
 
     if(!avatar ){
         throw new apiError(500 , "Error uploading avatar image")
@@ -43,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await  User.create({
         fullName,
         avatar : avatar.url,
-        coverImage : coverimage?.url||"",
+        coverImage : coverImage?.url||"",
         email,
         username : username.toLowerCase(),
         password
