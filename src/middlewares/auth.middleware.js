@@ -1,27 +1,27 @@
-import {asynchHandler} from "express-async-handler";
+import {asyncHandler} from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
-import { apiError } from "../utils/apiError.js";
-import User from "../models/user.model.js";
+import { ApiError } from "../utils/apiError.js";
+import {User} from "../models/user.model.js";
 
-export const verifyJwt = asynchHandler (async (req,res,next) => {
+export const verifyJwt = asyncHandler (async (req,res,next) => {
 try {
         const token =  req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer " , "");
     
         if (!token){
-            throw new apiError (401 , "Access denied , no token provided");
+            throw new ApiError (401 , "Access denied , no token provided");
         }
     
         const decodedToken = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET);
     
-        const user  = await User.findById(decodedToken?._id).select("-password -refreshToken")
+        const user  = await User.findById(decodedToken?.userId).select("-password -refreshToken");
         if(!user){
-            throw new apiError (401 , "Invalid token , user not found");
+            throw new ApiError (401 , "Invalid token , user not found");
     
         }
         req.user = user;
         next();
 } catch (error) {
-    throw new apiError (401 , error?.message ||"Invalid token");
+    throw new ApiError (401 , error?.message ||"Invalid token");
 }
 
 

@@ -110,8 +110,8 @@ return res.status(200).cookie("accessToken" , accessToken , options)
 
 const logOutUser  = asyncHandler(async (req,res) => {
 
-  User.findByIdAndUpdate(
-    await req.user._id,
+ await User.findByIdAndUpdate(
+     req.user._id,
     {
       $set: { refreshToken: undefined  }
     },

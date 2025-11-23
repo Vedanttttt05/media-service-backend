@@ -31,7 +31,7 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
-             userId: this._id,
+        userId: this._id,
         username: this.username,
         email: this.email ,
         fullName: this.fullName
