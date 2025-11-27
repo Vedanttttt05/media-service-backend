@@ -3,6 +3,7 @@ import {ApiError as apiError} from '../utils/apiError.js';
 import { User } from '../models/user.model.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { apiResponse } from '../utils/apiResponse.js';
+import { v2 as cloudinary } from "cloudinary";
 
 const generateAccessandRefreshTokens = async(user) => {
   try {
@@ -53,9 +54,12 @@ const registerUser = asyncHandler(async (req, res ) => {
 
 
   const user = await  User.create({
+
         fullName,
         avatar : avatar.url,
+        avatarPublicId : avatar.public_id,
         coverImage : coverImage?.url||"",
+        coverImagePublicId: coverImage?.public_id || "",
         email,
         username : username.toLowerCase(),
         password
@@ -238,26 +242,40 @@ const updateAvatar  = asyncHandler(async(req,res) => {
     throw new apiError(400 , "Avatar image is required")
   }
 
+  const userBeforeUpdate = await User.findById(req.user._id);
+
  const avatar = await uploadToCloudinary(avatarLocalPath)
+
+
+
 
  if(!avatar.url ){
      throw new apiError(500 , "Error uploading avatar image")
  }
 
+  if (userBeforeUpdate.avatarPublicId){
+    await cloudinary.uploader.destroy(userBeforeUpdate.avatarPublicId);
+  }
+
 const user  =  await User.findByIdAndUpdate(
    req.user._id,
    {
-     $set: { avatar : avatar.url  }
+     $set: { avatar : avatar.url ,
+      avatarPublicId : avatar.public_id
+      }
    },
    {
      new: true,
    }).select("-password -refreshToken");
+
 
    return res.status(200).json(new apiResponse(200 , user , "Avatar updated successfully") );
 
  
 
 })
+
+
 
 const updateCoverImage  = asyncHandler(async(req,res) => {
 
@@ -266,16 +284,23 @@ const updateCoverImage  = asyncHandler(async(req,res) => {
     throw new apiError(400 , "cover image is required")
   }
 
- const coverImage = await uploadToCloudinary(coverImageLocalPath)
+  const userBeforeUpdate = await User.findById(req.user._id);
+  const coverImage = await uploadToCloudinary(coverImageLocalPath)
 
- if(!coverImage.url ){
+  if(!coverImage.url ){
      throw new apiError(500 , "Error uploading cover image")
- }
+   }
+
+     if (userBeforeUpdate.coverImagePublicId){
+    await cloudinary.uploader.destroy(userBeforeUpdate.coverImagePublicId);
+  }
 
  const user = await User.findByIdAndUpdate(
    req.user._id,
    {
-     $set: { coverImage : coverImage.url  }
+     $set: { coverImage : coverImage.url ,
+      coverImagePublicId : coverImage.public_id
+      }
    },
    {
      new: true,
@@ -285,6 +310,7 @@ const updateCoverImage  = asyncHandler(async(req,res) => {
 
 
 })
+
 
 
 
