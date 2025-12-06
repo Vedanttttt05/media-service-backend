@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import { apiResponse } from '../utils/apiResponse.js';
 import { v2 as cloudinary } from "cloudinary";
+import mongoose from "mongoose";
 
 const generateAccessandRefreshTokens = async(user) => {
   try {
@@ -193,21 +194,23 @@ const getCurrentUser = asyncHandler(async (req,res) => {
 const updateDetails = asyncHandler(async (req, res) => {
   const { fullName, email, username } = req.body;
 
-  if ([fullName, email, username].some(field => field?.trim() === "")) {
+  if ([fullName, email, username].some(field => typeof field !== "string" || field.trim() === "")) {
     throw new apiError(400, "All fields are required");
   }
 
   const emailExists = await User.findOne({
     email,
-    _id: { $ne: req.user._id } 
+    _id: { $ne: req.user._id }
   });
 
   if (emailExists) {
     throw new apiError(409, "Email is already in use");
   }
 
+  const normalizedUsername = username.toLowerCase();
+
   const usernameExists = await User.findOne({
-    username: username.toLowerCase(),
+    username: normalizedUsername,
     _id: { $ne: req.user._id }
   });
 
@@ -221,7 +224,7 @@ const updateDetails = asyncHandler(async (req, res) => {
       $set: {
         fullName,
         email,
-        username: username.toLowerCase()
+        username: normalizedUsername
       }
     },
     {
@@ -418,7 +421,7 @@ const getWatchHistory  = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(
-        new ApiResponse(
+        new apiResponse(
             200,
             user[0].watchHistory,
             "Watch history fetched successfully"
