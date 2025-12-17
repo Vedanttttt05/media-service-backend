@@ -2,7 +2,7 @@
   "name": "media-service-backend",
   "version": "1.0.0",
   "description": "Backend API for a media-driven content platform",
-  "license": "ISC",
+  "license": "MIT",
   "author": "vedant patil",
   "type": "module",
   "main": "index.js",
