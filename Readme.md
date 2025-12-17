@@ -1,129 +1,127 @@
-```markdown
-# YouTube-Like Backend 🚀
+# Media Service Backend 🚀
 
-A robust backend API for a YouTube-like video-sharing platform, built with Node.js and Express. This project handles user authentication, video uploads, content management, and social interactions.
+A robust backend service built with Node.js for managing various media-related functionalities. This project provides a scalable and efficient API for handling user authentication, media uploads, social interactions, and more.
 
 ## Features ⚡
 
-*   **User Authentication:** Secure registration, login, and session management.
-*   **Video Management:** Upload, retrieve, update, and delete videos.
-*   **Content Interactions:** Likes, comments, and playlists for videos.
-*   **Subscriptions:** Follow and unfollow users.
-*   **Tweet Functionality:** Post and manage short text updates.
-*   **Dashboard Analytics:** Provide insights into user activity and content performance.
-*   **Cloudinary Integration:** Seamlessly handle image and video storage.
-*   **Mongoose ODM:** Efficiently interact with a MongoDB database.
-*   **Middleware System:** Implement authentication, authorization, and request validation.
+*   **User Authentication**: Secure registration, login, and session management.
+*   **Media Uploads**: Seamlessly upload videos, tweets, and other media content with Cloudinary integration.
+*   **Social Interactions**:
+    *   Comment on videos and tweets.
+    *   Like videos, comments, and tweets.
+    *   Create and manage playlists.
+    *   Subscribe to users.
+*   **Content Management**: Efficiently manage and retrieve various media types.
+*   **API Error Handling**: Standardized API error responses for a consistent developer experience.
+*   **Asynchronous Operations**: Graceful handling of asynchronous tasks using `asyncHandler`.
+*   **Database Integration**: MongoDB integration for persistent data storage.
+*   **Health Check**: Endpoint to monitor service health.
+*   **Code Quality**: Enforced code style using Prettier.
 
 ## Tech Stack 📦
 
-*   **Node.js:** JavaScript runtime environment.
-*   **Express.js:** Fast, unopinionated, minimalist web framework for Node.js.
-*   **JavaScript:** The primary programming language.
-*   **MongoDB:** NoSQL database for storing application data.
-*   **Mongoose:** Object Data Modeling (ODM) library for MongoDB.
-*   **bcrypt:** For secure password hashing.
-*   **jsonwebtoken:** For creating and verifying JSON Web Tokens (JWTs) for authentication.
-*   **Multer:** Middleware for handling `multipart/form-data`, primarily used for file uploads.
-*   **Cloudinary:** Cloud-based image and video management service.
-*   **dotenv:** Loads environment variables from a `.env` file.
-*   **cors:** Middleware to enable Cross-Origin Resource Sharing.
-*   **cookie-parser:** Middleware to parse cookies attached to the client.
-*   **prettier:** Code formatter for consistent code style.
-*   **nodemon:** Utility that monitors for changes in source and automatically restarts the server.
+*   **Node.js**: JavaScript runtime environment.
+*   **Express.js**: Web application framework for Node.js.
+*   **MongoDB**: NoSQL database for data storage.
+*   **Mongoose**: ODM (Object Data Modeling) library for MongoDB.
+*   **Cloudinary**: Cloud-based image and video management service.
+*   **JWT (JSON Web Tokens)**: For secure authentication.
+*   **bcrypt**: For password hashing.
+*   **Multer**: Middleware for handling `multipart/form-data`, primarily used for file uploads.
+*   **dotenv**: Loads environment variables from a `.env` file.
+*   **cors**: Middleware to enable Cross-Origin Resource Sharing.
+*   **cookie-parser**: Middleware to parse cookies attached to the client request.
+*   **nodemon**: Utility that automatically restarts the Node.js application when file changes are detected.
+*   **prettier**: An opinionated code formatter.
 
 ## Installation 🛠️
 
-1.  **Clone the repository:**
+Follow these steps to set up the project locally:
+
+1.  **Clone the Repository**:
     ```bash
-    git clone https://github.com/your-username/youtube-like-backend.git
-    cd youtube-like-backend
+    git clone https://github.com/yourusername/media-service-backend.git
+    cd media-service-backend
     ```
 
-2.  **Install dependencies:**
+2.  **Install Dependencies**:
     ```bash
     npm install
     ```
 
-3.  **Set up environment variables:**
-    Create a `.env` file in the root of the project and populate it with the following variables:
+3.  **Environment Variables**:
+    Create a `.env` file in the root directory and populate it with the following variables:
 
     ```env
     PORT=8000
-    MONGODB_URI=your_mongodb_connection_string
-    JWT_SECRET=your_jwt_secret_key
-    JWT_EXPIRY=1d
-    CLOUD_NAME=your_cloudinary_cloud_name
-    CLOUD_API_KEY=your_cloudinary_api_key
-    CLOUD_API_SECRET=your_cloudinary_api_secret
+    MONGODB_URI=mongodb://localhost:27017/your_db_name
+    CLOUD_NAME=<your_cloudinary_cloud_name>
+    API_KEY=<your_cloudinary_api_key>
+    API_SECRET=<your_cloudinary_api_secret>
+    ACCESS_TOKEN_SECRET=<your_jwt_access_token_secret>
+    ACCESS_TOKEN_EXPIRY=<your_jwt_access_token_expiry>
+    REFRESH_TOKEN_SECRET=<your_jwt_refresh_token_secret>
+    REFRESH_TOKEN_EXPIRY=<your_jwt_refresh_token_expiry>
     CORS_ORIGIN=http://localhost:3000 # Or your frontend origin
     ```
+    *Replace placeholders with your actual credentials and settings.*
 
-4.  **Start the development server:**
+4.  **Start the Development Server**:
     ```bash
     npm run dev
     ```
+    This will start the server in development mode using `nodemon`, which will automatically restart the server on code changes.
 
-## Usage 💡
+## Usage 🧑‍💻
 
-Once the server is running, you can interact with the API endpoints. Below are a few examples of common operations:
+Once the server is running, you can interact with the API endpoints. Here are a few examples:
 
-### User Registration
+**Example: User Registration**
 
-*   **Method:** `POST`
-*   **Endpoint:** `/api/v1/users/register`
-*   **Request Body:**
-    ```json
-    {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "securepassword123"
-    }
-    ```
+```http
+POST /api/v1/users/register
+Content-Type: application/json
 
-### User Login
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "securepassword123"
+}
+```
 
-*   **Method:** `POST`
-*   **Endpoint:** `/api/v1/users/login`
-*   **Request Body:**
-    ```json
-    {
-        "email": "test@example.com",
-        "password": "securepassword123"
-    }
-    ```
+**Example: Upload a Video**
 
-### Upload Video
+```http
+POST /api/v1/videos
+Authorization: Bearer <your_access_token>
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-*   **Method:** `POST`
-*   **Endpoint:** `/api/v1/videos`
-*   **Authentication:** Requires a valid JWT in the `Authorization` header.
-*   **Request Body (multipart/form-data):**
-    *   `videoFile`: The video file itself.
-    *   `thumbnail`: The thumbnail image for the video.
-    *   `title`: Title of the video.
-    *   `description`: Description of the video.
-    *   `owner`: The ID of the video owner (usually inferred from JWT).
+----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="videoFile"; filename="myvideo.mp4"
+Content-Type: video/mp4
 
-### Get All Videos
+...binary video data...
+----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
 
-*   **Method:** `GET`
-*   **Endpoint:** `/api/v1/videos`
+My Awesome Video
+----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
 
-*(More endpoints and examples can be found in the API documentation, which would typically be a separate document or generated via tools like Swagger/OpenAPI).*
+This is a description for my awesome video.
+----WebKitFormBoundary7MA4YWxkTrZu0gW--
+```
 
-## Project Structure 📂
+*Refer to the API documentation (if available) for a complete list of endpoints and their request/response formats.*
+
+## Project Structure 📁
 
 ```
 .
-├── package-lock.json
-├── package.json
 ├── public/
-│   └── temp/             # Temporary storage for uploads
+│   └── temp/               # Temporary storage for uploaded files
 ├── src/
-│   ├── app.js            # Express application setup
-│   ├── constants.js      # Project constants
-│   ├── controllers/      # Request handlers for various resources
+│   ├── controllers/        # Handles request logic and business operations
 │   │   ├── comment.controller.js
 │   │   ├── dashboard.controller.js
 │   │   ├── healthcheck.controller.js
@@ -133,14 +131,13 @@ Once the server is running, you can interact with the API endpoints. Below are a
 │   │   ├── tweet.controller.js
 │   │   ├── user.controller.js
 │   │   └── video.controller.js
-│   ├── db/               # Database connection logic
-│   │   └── index.js
-│   ├── index.js          # Application entry point
-│   ├── middlewares/      # Custom middleware functions
+│   ├── db/                 # Database connection and models
+│   │   └── index.js        # Database connection logic
+│   ├── middlewares/        # Custom middleware functions
 │   │   ├── auth.middleware.js
 │   │   ├── multer.middleware.js
 │   │   └── ownership.middleware.js
-│   ├── models/           # Mongoose schemas and models
+│   ├── models/             # Mongoose schemas for database models
 │   │   ├── comment.model.js
 │   │   ├── like.model.js
 │   │   ├── playlist.model.js
@@ -148,50 +145,55 @@ Once the server is running, you can interact with the API endpoints. Below are a
 │   │   ├── tweet.model.js
 │   │   ├── user.model.js
 │   │   └── video.model.js
-│   ├── routes/           # API route definitions
+│   ├── routes/             # Defines API routes and maps them to controllers
 │   │   ├── comment.routes.js
 │   │   ├── dashboard.routes.js
-│   │   ├── healthcheck.routes.js
+│   │   ├── healthcheck..routes.js
 │   │   ├── likes.routes.js
 │   │   ├── playlist.routes.js
 │   │   ├── subscription.routes.js
 │   │   ├── tweet.routes.js
 │   │   ├── user.routes.js
 │   │   └── video.routes.js
-│   └── utils/            # Utility functions
-│       ├── apiError.js
-│       ├── apiResponse.js
-│       ├── asyncHandler.js
-│       └── cloudinary.js
-└── .env                  # Environment variables (DO NOT COMMIT)
+│   ├── utils/              # Utility functions and helpers
+│   │   ├── apiError.js
+│   │   ├── apiResponse.js
+│   │   ├── asyncHandler.js
+│   │   └── cloudinary.js
+│   ├── app.js              # Express application setup
+│   ├── constants.js        # Project-wide constants
+│   └── index.js            # Application entry point, starts the server
+├── .env                    # Environment variables
+├── .gitignore              # Specifies intentionally untracked files
+├── package-lock.json       # Records exact dependency versions
+├── package.json            # Project metadata and dependencies
+└── prettier.config.js      # Prettier configuration file (if present)
 ```
 
-## Configuration ⚙️
+## Configuration 🧾
 
-This project uses environment variables for configuration. Please ensure you have a `.env` file in the root directory with the following variables:
+The project relies on environment variables defined in a `.env` file located at the root of the project. These variables configure essential aspects of the application:
 
-*   `PORT`: The port on which the server will listen (default: `8000`).
-*   `MONGODB_URI`: Your MongoDB connection string.
-*   `JWT_SECRET`: A strong, secret key for signing JWTs.
-*   `JWT_EXPIRY`: The expiration time for JWTs (e.g., `1d` for 1 day).
-*   `CLOUD_NAME`: Your Cloudinary cloud name.
-*   `CLOUD_API_KEY`: Your Cloudinary API key.
-*   `CLOUD_API_SECRET`: Your Cloudinary API secret.
-*   `CORS_ORIGIN`: The origin(s) allowed to make requests to your API.
+*   `PORT`: The port on which the server will listen.
+*   `MONGODB_URI`: The connection string for your MongoDB database.
+*   `CLOUD_NAME`, `API_KEY`, `API_SECRET`: Cloudinary credentials for media storage.
+*   `ACCESS_TOKEN_SECRET`, `ACCESS_TOKEN_EXPIRY`: JWT secret and expiry for access tokens.
+*   `REFRESH_TOKEN_SECRET`, `REFRESH_TOKEN_EXPIRY`: JWT secret and expiry for refresh tokens.
+*   `CORS_ORIGIN`: The allowed origin for Cross-Origin Resource Sharing requests.
 
 ## Contributing 🤝
 
-Contributions are welcome! Please follow these guidelines:
+We welcome contributions to `media-service-backend`! If you'd like to contribute, please follow these guidelines:
 
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix (`git checkout -b feature/your-feature-name`).
-3.  Make your changes and commit them (`git commit -m 'Add some feature'`).
-4.  Push to the branch (`git push origin feature/your-feature-name`).
-5.  Open a Pull Request.
+1.  **Fork the repository.**
+2.  **Create a new branch** for your feature or bug fix (`git checkout -b feature/AmazingFeature`).
+3.  **Make your changes** and ensure they adhere to the project's coding style.
+4.  **Commit your changes** (`git commit -m 'Add some AmazingFeature'`).
+5.  **Push to the branch** (`git push origin feature/AmazingFeature`).
+6.  **Open a Pull Request**.
 
-Please ensure your code adheres to the project's coding style (handled by Prettier).
+Please ensure you have tested your changes thoroughly before submitting a pull request.
 
-## License 📜
+## License 📄
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-```

@@ -1,7 +1,7 @@
 {
-  "name": "youtube-like-backend",
+  "name": "media-service-backend",
   "version": "1.0.0",
-  "description": "backend service for youtube like app ",
+  "description": "Backend API for a media-driven content platform",
   "license": "ISC",
   "author": "vedant patil",
   "type": "module",
