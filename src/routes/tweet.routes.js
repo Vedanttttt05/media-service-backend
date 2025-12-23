@@ -7,10 +7,10 @@ import {
 } from "../controllers/tweet.controller.js"
 import { verifyOwnership } from "../middlewares/ownership.middleware.js";
 import { Tweet } from "../models/tweet.model.js";
-import {verifyJWT} from "../middlewares/auth.middleware.js"
+import {verifyJwt} from "../middlewares/auth.middleware.js"
 
 const router = Router();
-router.use(verifyJWT); 
+router.use(verifyJwt); 
 
 router.route("/").post(createTweet);
 router.route("/user/:userId").get(getUserTweets);

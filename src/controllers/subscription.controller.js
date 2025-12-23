@@ -1,8 +1,8 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {User} from "../models/user.model.js"
 import { Subscription } from "../models/subscription.model.js"
-import {ApiError} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
+import  ApiError  from "../utils/apiError.js"
+import apiResponse from "../utils/apiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
 
@@ -10,10 +10,10 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
 
     if (!isValidObjectId(channelId)) {
-        throw new ApiError(400, "Invalid channel ID")
+        throw new apiError(400, "Invalid channel ID")
     }
     if (channelId.toString() === req.user._id.toString()) {
-        throw new ApiError(400, "You cannot subscribe to your own channel")
+        throw new apiError(400, "You cannot subscribe to your own channel")
     }
     
     const existingSubscription = await Subscription.findOne({
@@ -24,7 +24,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     if (existingSubscription) {
         // Unsubscribe
         await existingSubscription.deleteOne()
-        return res.status(200).json(new ApiResponse(200 , null , "Unsubscribed successfully"))
+        return res.status(200).json(new apiResponse(200 , null , "Unsubscribed successfully"))
     }
     // Subscribe
     
@@ -32,7 +32,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         subscriber: req.user._id,
         channel: channelId
     })
-    return res.status(200).json(new ApiResponse(200,null, "Subscribed successfully"))
+    return res.status(200).json(new apiResponse(200,null, "Subscribed successfully"))
 
 
     
@@ -42,7 +42,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     const {channelId} = req.params
     if (!isValidObjectId(channelId)) {
-        throw new ApiError(400, "Invalid channel ID")
+        throw new apiError(400, "Invalid channel ID")
     }
 
     const subscribers = await Subscription.aggregate([
@@ -77,13 +77,13 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 ])
 
 
-    return res.status(200).json(new ApiResponse(200, subscribers, "Subscribers fetched successfully"))
+    return res.status(200).json(new apiResponse(200, subscribers, "Subscribers fetched successfully"))
 })
 
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
     if (!isValidObjectId(subscriberId)) {
-        throw new ApiError(400, "Invalid subscriber ID")
+        throw new apiError(400, "Invalid subscriber ID")
     }
     const subscriptions = await Subscription.aggregate([
         {
@@ -115,7 +115,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
 
 
     ])
-    return res.status(200).json(new ApiResponse(200, subscriptions, "Subscribed channels fetched successfully"))
+    return res.status(200).json(new apiResponse(200, subscriptions, "Subscribed channels fetched successfully"))
 })
 
 export {

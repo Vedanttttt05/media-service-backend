@@ -1,3 +1,5 @@
+import {asyncHandler} from "../utils/asyncHandler.js";
+
 export const verifyOwnership = (Model) =>
     asyncHandler(async (req, res, next) => {
         const { id } = req.params;   
