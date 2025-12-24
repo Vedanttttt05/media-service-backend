@@ -16,8 +16,8 @@ router.route("/").post(createTweet);
 router.route("/user/:userId").get(getUserTweets);
 
 router
-  .route("/:tweetId")
-  .patch(verifyOwnership(Tweet, "tweetId"), updateTweet)
-  .delete(verifyOwnership(Tweet, "tweetId"), deleteTweet);
+  .route("/:id")
+  .patch(verifyOwnership(Tweet), updateTweet)
+  .delete(verifyOwnership(Tweet), deleteTweet);
 
 export default router

@@ -2,7 +2,7 @@ import mongoose, { isValidObjectId } from "mongoose"
 import {Tweet} from "../models/tweet.model.js"
 import {User} from "../models/user.model.js"
 import ApiError from "../utils/ApiError.js"
-import apiResponse  from "../utils/apiResponse.js"
+import ApiResponse  from "../utils/apiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
 const createTweet = asyncHandler(async (req, res) => {
@@ -66,6 +66,9 @@ const updateTweet = asyncHandler(async (req, res) => {
 const deleteTweet = asyncHandler(async (req, res) => {
     const tweet = req.resource;
     const  check = await tweet.deleteOne();
+    if (!check) {
+        throw new ApiError(500, "Failed to delete tweet");
+    }
     return res
         .status(200)
         .json(new ApiResponse(true, "Tweet deleted successfully", null));
