@@ -6,7 +6,7 @@ const videoSchema = new Schema({
     thumbnail: { type: String , required : true}, //use cloudinary later}
     title: { type: String, required: true },
     description: { type: String , required : true},
-    duration: { type: Number, required: true }, // duration in seconds
+    duration: { type: Number, required: false }, // duration in seconds
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     isPublished: { type: Boolean, default: true },

@@ -45,15 +45,15 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if (!title || title.trim() === "") {
         throw new ApiError(400, "Video title is required")
     }
-    const videoLocalPath = req.files?.video?.[0]?.path
+    const videoLocalPath = req.files?.videoFile?.[0]?.path
      const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path
 
      if (!videoLocalPath || !thumbnailLocalPath) {
         throw new ApiError(400, "Video and thumbnail are required")
     }
 
-        const videoUpload = await uploadOnCloudinary(videoLocalPath)
-        const thumbnailUpload = await uploadOnCloudinary(thumbnailLocalPath)
+        const videoUpload = await uploadToCloudinary(videoLocalPath)
+        const thumbnailUpload = await uploadToCloudinary(thumbnailLocalPath)
 
         if (!videoUpload || !thumbnailUpload) {
             throw new ApiError(500, "Failed to upload video or thumbnail")
@@ -73,26 +73,26 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 })
 
-    const getVideoById = asyncHandler(async (req, res) => {
-        const { videoId } = req.params
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
 
-        if (!isValidObjectId(videoId)) {
-            throw new ApiError(400, "Invalid video ID")
-        }
-        const video = await Video.findById(videoId).populate("owner", "username avatar")
-        
-        if (!video) {
-            throw new ApiError(404, "Video not found")
-        }
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID")
+    }
+    const video = await Video.findById(videoId).populate("owner", "username avatar")
+    
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
 
-            if (
-            !video.isPublished &&
-            video.owner._id.toString() !== req.user?._id?.toString()
-        ) {
-            throw new ApiError(403, "This video is not published")
-        }
-        return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"))
-    })
+        if (
+        !video.isPublished &&
+        video.owner._id.toString() !== req.user?._id?.toString()
+    ) {
+        throw new ApiError(403, "This video is not published")
+    }
+    return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"))
+})
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
@@ -119,7 +119,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     }
 
     if (thumbnailLocalPath) {
-        const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+        const thumbnail = await uploadToCloudinary(thumbnailLocalPath)
         if (!thumbnail.url) {
             throw new ApiError(500, "Failed to upload thumbnail")
         }
