@@ -14,9 +14,13 @@ const router = Router();
 
 router.use(verifyJwt); 
 
+router
+  .route("/video/:videoId")
+  .post(addComment)
+  .get(getVideoComments)
 
 router
-  .route("/c/:commentId")
+  .route("/:id")
   .delete(verifyOwnership(Comment, "commentId"), deleteComment)
   .patch(verifyOwnership(Comment, "commentId"), updateComment);
 
