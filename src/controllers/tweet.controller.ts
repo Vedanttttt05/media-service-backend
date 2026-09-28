@@ -6,7 +6,7 @@ import ApiResponse  from "../utils/apiResponse"
 import {asyncHandler} from "../utils/asyncHandler"
 
 const createTweet = asyncHandler(async (req, res) => {
-    const { content } = req.body
+    const { content } = req.body ?? {}
     const userId = req.user!._id
 
     if (!content || content.trim() === "") {
@@ -49,7 +49,7 @@ return res
 
 const updateTweet = asyncHandler(async (req, res) => {
 
-    const { content } = req.body;
+    const { content } = req.body ?? {};
     const tweet = req.resource as TweetDocument;
 
     if (!content || content.trim() === "") {

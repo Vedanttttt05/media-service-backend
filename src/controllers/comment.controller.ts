@@ -25,7 +25,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
-    const { content } = req.body;
+    const { content } = req.body ?? {};
     const userId = req.user!._id;
 
     if (!content || content.trim() === "") {
@@ -45,7 +45,7 @@ const addComment = asyncHandler(async (req, res) => {
 
 
 const updateComment = asyncHandler(async (req, res) => {
-    const { content } = req.body;
+    const { content } = req.body ?? {};
     const comment = req.resource as CommentDocument;
 
     if (!content || content.trim() === "") {

@@ -7,7 +7,7 @@ import {asyncHandler} from "../utils/asyncHandler"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
+    const {name, description} = req.body ?? {}
 
     if (!name) {
         throw new ApiError(400, "Playlist name is required")
@@ -132,7 +132,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
 const updatePlaylist = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
-    const {name, description} = req.body
+    const {name, description} = req.body ?? {}
     if (!isValidObjectId(playlistId)) {
         throw new ApiError(400, "Invalid playlist ID")
     }

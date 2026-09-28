@@ -41,7 +41,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    const { title, description} = req.body
+    const { title, description} = req.body ?? {}
 
     if (!title || title.trim() === "") {
         throw new ApiError(400, "Video title is required")
@@ -98,7 +98,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    const { title, description  , thumbnail} = req.body
+    const { title, description  , thumbnail} = req.body ?? {}
 
     if (!isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID")

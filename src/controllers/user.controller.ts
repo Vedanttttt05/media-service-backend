@@ -105,7 +105,7 @@ const loggedInUser = await User.findById(user._id).select("-password -refreshTok
 
 const options : CookieOptions = {
   httpOnly: true,
-  secure : true,
+  secure : process.env.NODE_ENV === "production",
 }
 res.status(200).cookie("accessToken" , accessToken , options)
 .cookie("refreshToken" , refreshToken , options)
@@ -138,7 +138,7 @@ const logOutUser  = asyncHandler(async (req,res) => {
  await User.findByIdAndUpdate(
      req.user!._id,
     {
-      $set: { refreshToken: undefined  }
+      $unset: { refreshToken: 1 }
     }
     
   )
@@ -146,7 +146,7 @@ const logOutUser  = asyncHandler(async (req,res) => {
   
 const options = {
   httpOnly: true,
-  secure : true,
+  secure : process.env.NODE_ENV === "production",
 
 }
 return res.status(200).clearCookie("accessToken" , options)
@@ -155,7 +155,7 @@ return res.status(200).clearCookie("accessToken" , options)
 });
 
 const refreshAccessToken = asyncHandler (async (req,res) => {
-  const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+  const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!incomingRefreshToken){
       throw new apiError (401 , "unauthorized , no token provided");
@@ -173,7 +173,7 @@ const refreshAccessToken = asyncHandler (async (req,res) => {
  
    const options = {
      httpOnly: true,
-     secure : true,
+     secure : process.env.NODE_ENV === "production",
    }
    const { accessToken , refreshToken: newRefreshToken} = await generateAccessandRefreshTokens(user)
  
@@ -187,7 +187,7 @@ const refreshAccessToken = asyncHandler (async (req,res) => {
 });
 
 const changePassword = asyncHandler (async (req,res) => {
-  const { currentPassword , newPassword } = req.body;
+  const { currentPassword , newPassword } = req.body ?? {};
 
   if (!currentPassword || !newPassword) {
   throw new apiError(400, "Current password and new password are required");
@@ -219,7 +219,7 @@ const getCurrentUser = asyncHandler(async (req,res) => {
 
 
 const updateDetails = asyncHandler(async (req, res) => {
-  let { fullName, email, username } = req.body;
+  let { fullName, email, username } = req.body ?? {};
   fullName = fullName?.trim();
   email = email?.trim()?.toLowerCase();
   username = username?.trim()?.toLowerCase();
