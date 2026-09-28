@@ -8,7 +8,7 @@ import ApiResponse from "../utils/apiResponse"
 import {asyncHandler} from "../utils/asyncHandler"
 
 const getChannelStats = asyncHandler(async (req, res) => {
-     const userId = req.user._id
+     const userId = req.user!._id
 
     const totalVideos = await Video.countDocuments({ owner: userId });
 
@@ -35,7 +35,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
     };
     return res
         .status(200)
-        .json(new ApiResponse(true, "Channel stats fetched successfully", stats));
+        .json(new ApiResponse(200, stats, "Channel stats fetched successfully"));
 
 
 
@@ -44,9 +44,10 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
 
 const getChannelVideos = asyncHandler(async (req, res) => {
-    const userId = req.user._id;
+    const userId = req.user!._id;
 
-    const { page = 1, limit = 10 } = req.query;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const videos = await Video.find({ owner: userId })
@@ -56,7 +57,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(true, "Channel videos fetched successfully", videos));
+        .json(new ApiResponse(200, videos, "Channel videos fetched successfully"));
 });
 
 

@@ -1,10 +1,11 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {Video} from "../models/video.model"
+import mongoose, {isValidObjectId, FilterQuery} from "mongoose"
+import {Video, IVideo} from "../models/video.model"
 import {User} from "../models/user.model"
 import ApiError from "../utils/apiError"
 import ApiResponse from "../utils/apiResponse"
 import {asyncHandler} from "../utils/asyncHandler"
 import {uploadToCloudinary} from "../utils/cloudinary"
+import { VideoFiles } from "../types/files/video.files"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
@@ -14,22 +15,22 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const limitNumber = Math.max(Number(limit), 1)
 
     
-    const sortField = sortBy || "createdAt"
+    const sortField = typeof sortBy === "string" && sortBy ? sortBy : "createdAt"
     const sortOrder = sortType === "asc" ? 1 : -1
 
-    const filter  = { isPublished: true }
+    const filter: FilterQuery<IVideo> = { isPublished: true }
 
-    if (query) {
+    if (typeof query === "string" && query) {
         filter.title = { $regex: query, $options: "i" }
     }
 
-    if (userId && isValidObjectId(userId)) {
+    if (typeof userId === "string" && isValidObjectId(userId)) {
         filter.owner = userId
     }
 
     const videos = await Video.find(filter)
                    .populate("owner", "username avatar")
-                   .sort({[sortBy] : sortType === "asc" ? 1 : -1})
+                   .sort({[sortField] : sortOrder})
                    .skip((pageNumber -1) * limitNumber)
                      .limit(limitNumber)
                     
@@ -45,8 +46,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if (!title || title.trim() === "") {
         throw new ApiError(400, "Video title is required")
     }
-    const videoLocalPath = req.files?.videoFile?.[0]?.path
-     const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path
+    const files = req.files as VideoFiles | undefined
+    const videoLocalPath = files?.videoFile?.[0]?.path
+     const thumbnailLocalPath = files?.thumbnail?.[0]?.path
 
      if (!videoLocalPath || !thumbnailLocalPath) {
         throw new ApiError(400, "Video and thumbnail are required")
@@ -63,7 +65,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         description: description || "",
         videoFile: videoUpload.secure_url,
         thumbnail: thumbnailUpload.secure_url,
-        owner: req.user._id,
+        owner: req.user!._id,
         isPublished: true,
         views : 0
 
@@ -114,13 +116,13 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Video not found")
     }
 
-    if (video.owner.toString() !== req.user._id.toString()) {
+    if (video.owner.toString() !== req.user!._id.toString()) {
         throw new ApiError(403, "You are not authorized to update this video")
     }
 
     if (thumbnailLocalPath) {
         const thumbnail = await uploadToCloudinary(thumbnailLocalPath)
-        if (!thumbnail.url) {
+        if (!thumbnail?.url) {
             throw new ApiError(500, "Failed to upload thumbnail")
         }
         video.thumbnail = thumbnail.url
@@ -152,7 +154,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Video not found")
     }
 
-    if (video.owner.toString() !== req.user._id.toString()) {
+    if (video.owner.toString() !== req.user!._id.toString()) {
         throw new ApiError(403, "You are not authorized to delete this video")
     }
 
@@ -170,7 +172,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     if (!video) {
         throw new ApiError(404, "Video not found")
     }
-    if (video.owner.toString() !== req.user._id.toString()) {
+    if (video.owner.toString() !== req.user!._id.toString()) {
         throw new ApiError(403, "You are not authorized to update this video")
     }
     video.isPublished = !video.isPublished

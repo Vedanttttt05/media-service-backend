@@ -10,11 +10,11 @@ const PORT: number = Number(process.env.PORT) || 8000;
 
 connectDB()
   .then(() => {
-    app.listen(PORT || 8000, () => {
+    const server = app.listen(PORT || 8000, () => {
       console.log(`\nserver is running on port ${PORT || 8000}`);
     });
 
-    app.on("error", (err : Error) => {
+    server.on("error", (err : Error) => {
       console.error("server error:", err);
       process.exit(1);
     });

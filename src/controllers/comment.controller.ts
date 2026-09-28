@@ -1,4 +1,4 @@
-import {Comment} from "../models/comment.model"
+import {Comment, CommentDocument} from "../models/comment.model"
 import ApiError from "../utils/apiError"
 import ApiResponse from "../utils/apiResponse"
 import {asyncHandler} from "../utils/asyncHandler"
@@ -6,7 +6,8 @@ import {asyncHandler} from "../utils/asyncHandler"
 const getVideoComments = asyncHandler(async (req, res) => {
 
     const { videoId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
     const skip = (page - 1) * limit;
 
@@ -17,7 +18,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(true, "Comments fetched successfully", comments));
+        .json(new ApiResponse(200, comments, "Comments fetched successfully"));
 
 
 })
@@ -25,7 +26,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
 const addComment = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const { content } = req.body;
-    const userId = req.user._id;
+    const userId = req.user!._id;
 
     if (!content || content.trim() === "") {
         throw new ApiError(400, "Comment content cannot be empty");
@@ -39,13 +40,13 @@ const addComment = asyncHandler(async (req, res) => {
 
     return res
         .status(201)
-        .json(new ApiResponse(true, "Comment added successfully", comment));
+        .json(new ApiResponse(201, comment, "Comment added successfully"));
 });
 
 
 const updateComment = asyncHandler(async (req, res) => {
     const { content } = req.body;
-    const comment = req.resource;
+    const comment = req.resource as CommentDocument;
 
     if (!content || content.trim() === "") {
         throw new ApiError(400, "Comment content cannot be empty");
@@ -56,19 +57,19 @@ const updateComment = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(true, "Comment updated successfully", comment));
+        .json(new ApiResponse(200, comment, "Comment updated successfully"));
 });
 
 
 
 const deleteComment = asyncHandler(async (req, res) => {
-    const comment = req.resource;
+    const comment = req.resource as CommentDocument;
 
     await comment.deleteOne();
 
     return res
         .status(200)
-        .json(new ApiResponse(true, "Comment deleted successfully", null));
+        .json(new ApiResponse(200, null, "Comment deleted successfully"));
 });
 
 

@@ -21,7 +21,7 @@ router
 
 router
   .route("/:id")
-  .delete(verifyOwnership(Comment, "commentId"), deleteComment)
-  .patch(verifyOwnership(Comment, "commentId"), updateComment);
+  .delete(verifyOwnership(Comment), deleteComment)
+  .patch(verifyOwnership(Comment), updateComment);
 
 export default router;

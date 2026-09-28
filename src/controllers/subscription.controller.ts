@@ -10,14 +10,14 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
 
     if (!isValidObjectId(channelId)) {
-        throw new apiError(400, "Invalid channel ID")
+        throw new ApiError(400, "Invalid channel ID")
     }
-    if (channelId.toString() === req.user._id.toString()) {
-        throw new apiError(400, "You cannot subscribe to your own channel")
+    if (channelId.toString() === req.user!._id.toString()) {
+        throw new ApiError(400, "You cannot subscribe to your own channel")
     }
     
     const existingSubscription = await Subscription.findOne({
-        subscriber: req.user._id,
+        subscriber: req.user!._id,
         channel: channelId
     })
 
@@ -29,7 +29,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     // Subscribe
     
     await Subscription.create({
-        subscriber: req.user._id,
+        subscriber: req.user!._id,
         channel: channelId
     })
     return res.status(200).json(new apiResponse(200,null, "Subscribed successfully"))
@@ -42,13 +42,13 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     const {channelId} = req.params
     if (!isValidObjectId(channelId)) {
-        throw new apiError(400, "Invalid channel ID")
+        throw new ApiError(400, "Invalid channel ID")
     }
 
     const subscribers = await Subscription.aggregate([
   {
     $match: {
-      channel: new mongoose.Types.ObjectId(channelId)
+      channel: new mongoose.Types.ObjectId(channelId as string)
     }
   },
 
@@ -83,12 +83,12 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { subscriberId } = req.params
     if (!isValidObjectId(subscriberId)) {
-        throw new apiError(400, "Invalid subscriber ID")
+        throw new ApiError(400, "Invalid subscriber ID")
     }
     const subscriptions = await Subscription.aggregate([
         {
             $match: {
-                subscriber: new mongoose.Types.ObjectId(subscriberId)
+                subscriber: new mongoose.Types.ObjectId(subscriberId as string)
             }
             
         },

@@ -15,7 +15,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     const playlist = await Playlist.create({
         name,
         description,
-        owner: req.user._id
+        owner: req.user!._id
     })
     
     return res.status(201).json(
@@ -65,14 +65,14 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     
     const playlist = await Playlist.findOne({
         _id: playlistId,
-        owner: req.user._id
+        owner: req.user!._id
     })
 
     if (!playlist) {
         throw new ApiError(404, "Playlist not found")
     }
     
-    if (playlist.videos.includes(videoId)) {
+    if (playlist.videos.includes(new mongoose.Types.ObjectId(videoId as string))) {
         throw new ApiError(400, "Video already in playlist")
     }
 
@@ -96,13 +96,13 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     }
     const playlist = await Playlist.findOne({
         _id: playlistId,
-        owner: req.user._id
+        owner: req.user!._id
     })
     if (!playlist) {
         throw new ApiError(404, "Playlist not found")
     }
 
-    if (!playlist.videos.includes(videoId)) {
+    if (!playlist.videos.includes(new mongoose.Types.ObjectId(videoId as string))) {
         throw new ApiError(400, "Video not in playlist")
     } 
     playlist.videos.pull(videoId)
@@ -119,7 +119,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     }
     const playlist = await Playlist.findOne({
         _id: playlistId,
-        owner: req.user._id
+        owner: req.user!._id
     })
     if (!playlist) {
         throw new ApiError(404, "Playlist not found")
@@ -138,7 +138,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     }
     const playlist = await Playlist.findOne({
         _id: playlistId,
-        owner: req.user._id
+        owner: req.user!._id
     })
     if (!playlist) {
         throw new ApiError(404, "Playlist not found")
