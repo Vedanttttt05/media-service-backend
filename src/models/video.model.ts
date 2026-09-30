@@ -23,7 +23,6 @@ const videoSchema = new Schema<IVideo>({
     description: { type: String , required : true},
     duration: { type: Number, required: false }, // duration in seconds
     views: { type: Number, default: 0 },
-    likes: { type: Number, default: 0 },
     isPublished: { type: Boolean, default: true },
     dislikes: { type: Number, default: 0 },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },

@@ -6,39 +6,71 @@ import ApiResponse from "../utils/apiResponse"
 import {asyncHandler} from "../utils/asyncHandler"
 import {uploadToCloudinary} from "../utils/cloudinary"
 import { VideoFiles } from "../types/files/video.files"
+import { Like } from "../models/like.model";
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-    
-    const pageNumber = Math.max(1, Number(page))
-    const limitNumber = Math.max(Number(limit), 1)
+    const {
+        page = 1,
+        limit = 10,
+        query,
+        sortBy,
+        sortType,
+        userId
+    } = req.query;
 
-    
-    const sortField = typeof sortBy === "string" && sortBy ? sortBy : "createdAt"
-    const sortOrder = sortType === "asc" ? 1 : -1
+    const pageNumber = Math.max(1, Number(page));
+    const limitNumber = Math.max(Number(limit), 1);
 
-    const filter: FilterQuery<IVideo> = { isPublished: true }
+    const sortField =
+        typeof sortBy === "string" && sortBy
+            ? sortBy
+            : "createdAt";
+
+    const sortOrder = sortType === "asc" ? 1 : -1;
+
+    const filter: FilterQuery<IVideo> = {
+        isPublished: true
+    };
 
     if (typeof query === "string" && query) {
-        filter.title = { $regex: query, $options: "i" }
+        filter.title = {
+            $regex: query,
+            $options: "i"
+        };
     }
 
     if (typeof userId === "string" && isValidObjectId(userId)) {
-        filter.owner = userId
+        filter.owner = userId;
     }
 
     const videos = await Video.find(filter)
-                   .populate("owner", "username avatar")
-                   .sort({[sortField] : sortOrder})
-                   .skip((pageNumber -1) * limitNumber)
-                     .limit(limitNumber)
-                    
-    return res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"))
+        .populate("owner", "username avatar")
+        .sort({ [sortField]: sortOrder })
+        .skip((pageNumber - 1) * limitNumber)
+        .limit(limitNumber);
 
+    const videosWithLikes = await Promise.all(
+        videos.map(async (video) => {
+            const likes = await Like.countDocuments({
+                video: video._id
+            });
 
-    //TODO: get all videos based on query, sort, pagination
-})
+            return {
+                ...video.toObject(),
+                likes
+            };
+        })
+    );
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            videosWithLikes,
+            "Videos fetched successfully"
+        )
+    );
+});
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description} = req.body ?? {}
@@ -81,19 +113,37 @@ const getVideoById = asyncHandler(async (req, res) => {
     if (!isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID")
     }
-    const video = await Video.findById(videoId).populate("owner", "username avatar")
-    
+
+    const video = await Video.findById(videoId)
+        .populate("owner", "username avatar")
+
     if (!video) {
         throw new ApiError(404, "Video not found")
     }
 
-        if (
+    if (
         !video.isPublished &&
         video.owner._id.toString() !== req.user?._id?.toString()
     ) {
         throw new ApiError(403, "This video is not published")
     }
-    return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"))
+
+    const likes = await Like.countDocuments({
+        video: video._id
+    })
+
+    const videoData = {
+        ...video.toObject(),
+        likes
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            videoData,
+            "Video fetched successfully"
+        )
+    )
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
