@@ -97,6 +97,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         description: description || "",
         videoFile: videoUpload.secure_url,
         thumbnail: thumbnailUpload.secure_url,
+        duration: videoUpload.duration,
         owner: req.user!._id,
         isPublished: true,
         views : 0
@@ -132,9 +133,23 @@ const getVideoById = asyncHandler(async (req, res) => {
         video: video._id
     })
 
+    // count the view and move the video to the front of the viewer's watch history
+    await Video.updateOne({ _id: video._id }, { $inc: { views: 1 } })
+    await User.updateOne({ _id: req.user!._id }, { $pull: { watchHistory: video._id } })
+    await User.updateOne(
+        { _id: req.user!._id },
+        { $push: { watchHistory: { $each: [video._id], $position: 0 } } }
+    )
+
+    const isLiked = Boolean(
+        await Like.exists({ video: video._id, likedBy: req.user!._id })
+    )
+
     const videoData = {
         ...video.toObject(),
-        likes
+        views: video.views + 1,
+        likes,
+        isLiked
     }
 
     return res.status(200).json(

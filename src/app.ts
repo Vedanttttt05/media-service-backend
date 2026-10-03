@@ -1,6 +1,7 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import ApiError from "./utils/apiError";
 
 
 const app: Application = express();
@@ -44,6 +45,24 @@ app.use("/api/v1/comments", commentRouter)
 app.use("/api/v1/likes", likeRouter)
 app.use("/api/v1/playlist", playlistRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
+
+// send errors as JSON instead of Express's default HTML page
+app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+    const statusCode = err instanceof ApiError ? err.statusCode : 500;
+    if (statusCode >= 500) console.error(err);
+
+    const message =
+        statusCode >= 500 && process.env.NODE_ENV === "production"
+            ? "Internal server error"
+            : err instanceof Error ? err.message : "Something went wrong";
+
+    res.status(statusCode).json({
+        statusCode,
+        message,
+        success: false,
+        errors: err instanceof ApiError ? err.errors : [],
+    });
+});
 
     
 export  {app}; 
